@@ -1,75 +1,62 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+// app/tabs/index.tsx
+import { useEffect, useState } from 'react';
+import { FlatList, StyleSheet, View } from 'react-native';
+import { Card, ActivityIndicator, Text } from 'react-native-paper';
+import { Link } from 'expo-router';
 
 export default function HomeScreen() {
+  const [pokemons, setPokemons] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('https://pokeapi.co/api/v2/pokemon?limit=20')
+      .then(res => res.json())
+      .then(data => {
+        setPokemons(data.results);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <ActivityIndicator animating={true} style={{ marginTop: 20 }} />;
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <FlatList
+      contentContainerStyle={styles.list}
+      data={pokemons}
+      keyExtractor={(item) => item.name}
+      renderItem={({ item }) => (
+        <Link href={`/details/${item.name}`} asChild>
+          <Card style={styles.card} mode="elevated">
+            <Card.Content style={styles.cardContent}>
+              <Text style={styles.pokemonName}>
+                {item.name.toUpperCase()}
+              </Text>
+            </Card.Content>
+          </Card>
+        </Link>
+      )}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  list: {
+    padding: 16,
+  },
+  card: {
+    marginBottom: 16,
+    backgroundColor: '#fce4ec', // rosado claro estilo Pokémon
+    borderRadius: 16,
+    elevation: 3,
+  },
+  cardContent: {
     alignItems: 'center',
-    gap: 8,
+    paddingVertical: 20,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  pokemonName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#d81b60', // rosa fuerte
+    letterSpacing: 1,
   },
 });
