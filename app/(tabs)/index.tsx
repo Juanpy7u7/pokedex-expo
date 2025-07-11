@@ -47,7 +47,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: '#fce4ec', // rosado claro estilo Pokémon
     borderRadius: 16,
-    elevation: 3,
   },
   cardContent: {
     alignItems: 'center',
